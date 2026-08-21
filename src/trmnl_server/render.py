@@ -1,8 +1,9 @@
 """Rendering a usage snapshot to a 1-bit image for the e-ink panel."""
 
 import logging
+from functools import lru_cache
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -25,14 +26,17 @@ FONT_CANDIDATES = (
     "/mnt/c/Windows/Fonts/arialbd.ttf",
 )
 
-FontType = ImageFont.FreeTypeFont | ImageFont.ImageFont
+FontType = Union[ImageFont.FreeTypeFont, ImageFont.ImageFont]
 
 
+@lru_cache(maxsize=None)
 def load_font(size: int) -> FontType:
     """Load a bold sans font at the given size.
 
     Tries several distribution-specific paths before falling back to
     Pillow's bundled bitmap font, which ignores the requested size.
+    Results are cached, since every render requests the same handful of
+    sizes and loading a TrueType face is not free.
 
     Args:
       size: Desired point size.

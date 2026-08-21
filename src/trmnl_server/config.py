@@ -1,10 +1,13 @@
 """Runtime configuration for the TRMNL BYOS server."""
 
+import logging
 import os
 import socket
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_STATE_FILE = Path.home() / ".claude" / "trmnl-usage.json"
 DEFAULT_PORT = 2300
@@ -51,6 +54,10 @@ def detect_lan_address() -> str:
         sock.connect(("8.8.8.8", 80))
         return str(sock.getsockname()[0])
     except OSError:
+        logger.error(
+            "Could not determine a LAN address, falling back to 127.0.0.1. "
+            "The device cannot reach that; set TRMNL_BASE_URL explicitly."
+        )
         return "127.0.0.1"
     finally:
         sock.close()

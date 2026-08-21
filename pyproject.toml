@@ -1,14 +1,37 @@
 [project]
 name = "trmnl-server"
 version = "0.1.0"
-description = "Self-hosted TRMNL BYOS server showing Claude Code usage limits"
-requires-python = ">=3.11"
-dependencies = [
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.32",
-    "pillow>=11.0",
-    "orjson>=3.10",
+description = "Self-hosted BYOS server showing Claude Code usage on an e-ink panel"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Blake McIvor" },
 ]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Utilities",
+]
+keywords = ["trmnl", "byos", "eink", "epaper", "claude-code", "usage"]
+dependencies = [
+    "fastapi==0.141.1",
+    "uvicorn[standard]==0.52.4",
+    "pillow==12.3.0",
+    "orjson==3.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/bmcivor/trmnl-server"
+Repository = "https://github.com/bmcivor/trmnl-server"
+Issues = "https://github.com/bmcivor/trmnl-server/issues"
 
 [project.scripts]
 trmnl-server = "trmnl_server.__main__:main"
@@ -22,9 +45,9 @@ packages = ["src/trmnl_server"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0",
-    "ruff>=0.8",
-    "mypy>=1.13",
+    "mypy==2.3.1",
+    "pytest==9.1.1",
+    "ruff==0.16.4",
 ]
 
 [tool.ruff]
@@ -32,7 +55,7 @@ line-length = 88
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "B"]
+select = ["E", "F", "I", "N", "B", "G"]
 
 [tool.mypy]
 python_version = "3.11"

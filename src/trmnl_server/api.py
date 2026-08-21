@@ -34,19 +34,23 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         default_response_class=ORJSONResponse,
     )
     app.state.config = settings
-    app.state.screen_path = screen_path
 
     @app.get("/api/setup")
-    async def setup(id: str = Header(default="")) -> Dict[str, Any]:
+    async def setup(
+        device_id: str = Header(default="", alias="ID"),
+    ) -> Dict[str, Any]:
         """Register the device and hand back its credentials.
 
+        Any device that asks is issued the configured credentials; there is
+        no allowlist and no verification of the supplied MAC address.
+
         Args:
-          id: MAC address supplied by the firmware in the ID header.
+          device_id: MAC address supplied by the firmware in the ID header.
 
         Returns:
           The api_key, friendly_id and a welcome image URL.
         """
-        logger.info("Setup request from device %s", id or "<unknown>")
+        logger.info("Setup request from device %s", device_id or "<unknown>")
         return {
             "status": 200,
             "api_key": settings.api_key,
@@ -58,14 +62,17 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
 
     @app.get("/api/display")
     async def display(
-        id: str = Header(default=""),
-        access_token: str = Header(default="", alias="Access-Token"),
+        device_id: str = Header(default="", alias="ID"),
     ) -> Dict[str, Any]:
         """Render the current usage screen and tell the device where it is.
 
+        The firmware also sends an Access-Token header carrying the key
+        issued at setup. It is deliberately not checked: this server serves
+        any device that asks. See the README before exposing it beyond a
+        trusted network.
+
         Args:
-          id: MAC address supplied by the firmware.
-          access_token: API key previously issued at setup.
+          device_id: MAC address supplied by the firmware.
 
         Returns:
           A display payload naming the image URL and next refresh delay.
@@ -78,7 +85,6 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
 
         stamp = int(time.time())
         return {
-            "status": 0,
             "filename": f"{stamp}-{SCREEN_FILENAME}",
             "image_url": f"{settings.base_url}/{SCREEN_FILENAME}?v={stamp}",
             "image_url_timeout": 0,
