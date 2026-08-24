@@ -125,8 +125,38 @@ def _draw_window(
     draw.text((MARGIN, top + 130), detail, font=detail_font, fill=BLACK)
 
 
+def write_monochrome(image: Image.Image, destination: Path) -> Path:
+    """Convert a greyscale image to 1-bit and write it as a BMP.
+
+    Dithering is disabled deliberately. Pillow defaults to Floyd-Steinberg,
+    which diffuses the error from antialiased glyph edges into surrounding
+    pixels and reads as speckle on a monochrome panel. Hard thresholding
+    keeps edges solid.
+
+    Args:
+      image: Greyscale source image.
+      destination: File path the BMP is written to.
+
+    Returns:
+      The path written to.
+
+    Raises:
+      OSError: If the destination cannot be written.
+
+    Example:
+      A uniform mid-grey input produces a single flat colour, where
+      dithering would produce a checkerboard.
+    """
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    image.convert("1", dither=Image.Dither.NONE).save(destination, format="BMP")
+    return destination
+
+
 def render_snapshot(snapshot: UsageSnapshot, destination: Path) -> Path:
     """Render a usage snapshot to a 1-bit BMP the firmware can display.
+
+    Drawing happens in greyscale so text is antialiased, then hands off to
+    write_monochrome for the 1-bit conversion.
 
     Args:
       snapshot: Usage data to draw.
@@ -169,6 +199,4 @@ def render_snapshot(snapshot: UsageSnapshot, destination: Path) -> Path:
         footer = f"{footer}  (stale)"
     draw.text((MARGIN, DISPLAY_HEIGHT - 40), footer, font=footer_font, fill=BLACK)
 
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    image.convert("1").save(destination, format="BMP")
-    return destination
+    return write_monochrome(image, destination)
