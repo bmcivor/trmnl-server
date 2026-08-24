@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 
 from trmnl_server.config import DISPLAY_HEIGHT, DISPLAY_WIDTH
-from trmnl_server.render import render_snapshot
+from trmnl_server.render import render_snapshot, write_monochrome
 from trmnl_server.usage import UsageSnapshot, Window
 
 
@@ -66,6 +66,36 @@ def test_render_handles_absent_usage_data(tmp_path: Path) -> None:
 
     with Image.open(destination) as image:
         assert image.size == (DISPLAY_WIDTH, DISPLAY_HEIGHT)
+
+
+def test_write_monochrome_does_not_dither(tmp_path: Path) -> None:
+    """
+    Setup: Write a uniformly mid-grey image through the monochrome writer.
+    Expectations: The output holds a single colour. Error-diffusion dithering
+    would render mid-grey as a mix of black and white pixels instead.
+    """
+    destination = tmp_path / "grey.bmp"
+    grey = Image.new("L", (64, 64), 128)
+
+    write_monochrome(grey, destination)
+
+    with Image.open(destination) as image:
+        colours = image.convert("L").getcolors()
+
+    assert colours is not None
+    assert len(colours) == 1
+
+
+def test_write_monochrome_creates_missing_directories(tmp_path: Path) -> None:
+    """
+    Setup: Write to a path whose parent directories do not exist.
+    Expectations: The directories are created and the file written.
+    """
+    destination = tmp_path / "a" / "b" / "grey.bmp"
+
+    write_monochrome(Image.new("L", (8, 8), 255), destination)
+
+    assert destination.exists()
 
 
 def test_render_is_not_blank(tmp_path: Path) -> None:
