@@ -112,7 +112,12 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         except ValueError:
             logger.error("Device sent a log body that was not valid JSON")
             return Response(status_code=204)
-        for entry in payload.get("logs", []) if isinstance(payload, dict) else []:
+
+        if not isinstance(payload, dict):
+            logger.error("Device log body was not a JSON object")
+            return Response(status_code=204)
+
+        for entry in payload.get("logs", []):
             logger.info(
                 "device log [%s] %s",
                 entry.get("level", "info"),
