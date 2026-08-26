@@ -197,6 +197,7 @@ def render_snapshot(snapshot: UsageSnapshot, destination: Path) -> Path:
     footer = f"updated {snapshot.age()}"
     if snapshot.stale and snapshot.available:
         footer = f"{footer}  (stale)"
-    draw.text((MARGIN, DISPLAY_HEIGHT - 40), footer, font=footer_font, fill=BLACK)
+    footer_top = DISPLAY_HEIGHT - MARGIN
+    draw.text((MARGIN, footer_top), footer, font=footer_font, fill=BLACK)
 
     return write_monochrome(image, destination)
