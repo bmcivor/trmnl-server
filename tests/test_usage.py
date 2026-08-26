@@ -6,7 +6,12 @@ from typing import Any, Dict
 
 import orjson
 
-from trmnl_server.usage import Window, read_snapshot
+from trmnl_server.usage import (
+    FIVE_HOUR_LABEL,
+    SEVEN_DAY_LABEL,
+    Window,
+    read_snapshot,
+)
 
 
 def _write_state(path: Path, payload: Dict[str, Any]) -> None:
@@ -75,7 +80,7 @@ def test_expired_window_reports_zero_usage() -> None:
     Setup: Build a window whose reset time has already passed.
     Expectations: effective_percentage is zero despite a stored value.
     """
-    window = Window("5-HOUR", 88.0, int(time.time()) - 10)
+    window = Window(FIVE_HOUR_LABEL, 88.0, int(time.time()) - 10)
 
     assert window.expired is True
     assert window.effective_percentage == 0.0
@@ -87,7 +92,7 @@ def test_countdown_formats_hours_and_minutes() -> None:
     clear of the boundary where flooring would report a minute less.
     Expectations: The countdown renders as "1h 35m".
     """
-    window = Window("5-HOUR", 10.0, int(time.time()) + (95 * 60) + 30)
+    window = Window(FIVE_HOUR_LABEL, 10.0, int(time.time()) + (95 * 60) + 30)
 
     assert window.countdown() == "1h 35m"
 
@@ -97,7 +102,7 @@ def test_countdown_without_reset_time() -> None:
     Setup: Build a window with no reset timestamp.
     Expectations: The countdown renders as a placeholder.
     """
-    window = Window("WEEKLY", 10.0, None)
+    window = Window(SEVEN_DAY_LABEL, 10.0, None)
 
     assert window.countdown() == "--"
     assert window.expired is False

@@ -10,8 +10,11 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 DEFAULT_STATE_FILE = Path.home() / ".claude" / "trmnl-usage.json"
+DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = 2300
 DEFAULT_REFRESH_RATE = 900
+DEFAULT_API_KEY = "local-byos-key"
+DEFAULT_FRIENDLY_ID = "CLAUDE"
 DISPLAY_WIDTH = 800
 DISPLAY_HEIGHT = 480
 SCREEN_FILENAME = "screen.bmp"
@@ -76,12 +79,12 @@ def load_config() -> Config:
     state_file = os.environ.get("TRMNL_STATE_FILE")
     return Config(
         state_file=Path(state_file) if state_file else DEFAULT_STATE_FILE,
-        host=os.environ.get("TRMNL_HOST", "0.0.0.0"),
+        host=os.environ.get("TRMNL_HOST", DEFAULT_HOST),
         port=port,
         base_url=base_url.rstrip("/"),
         refresh_rate=int(
             os.environ.get("TRMNL_REFRESH_RATE", DEFAULT_REFRESH_RATE)
         ),
-        api_key=os.environ.get("TRMNL_API_KEY", "local-byos-key"),
-        friendly_id=os.environ.get("TRMNL_FRIENDLY_ID", "CLAUDE"),
+        api_key=os.environ.get("TRMNL_API_KEY", DEFAULT_API_KEY),
+        friendly_id=os.environ.get("TRMNL_FRIENDLY_ID", DEFAULT_FRIENDLY_ID),
     )
