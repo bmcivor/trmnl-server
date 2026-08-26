@@ -11,6 +11,8 @@ import orjson
 logger = logging.getLogger(__name__)
 
 STALE_AFTER_SECONDS = 900
+FIVE_HOUR_LABEL = "5-HOUR"
+SEVEN_DAY_LABEL = "WEEKLY"
 
 
 @dataclass(frozen=True)
@@ -105,8 +107,8 @@ class UsageSnapshot:
 def _empty_snapshot() -> UsageSnapshot:
     """Build a placeholder snapshot used when no state file exists."""
     return UsageSnapshot(
-        five_hour=Window("5-HOUR", 0.0, None),
-        seven_day=Window("WEEKLY", 0.0, None),
+        five_hour=Window(FIVE_HOUR_LABEL, 0.0, None),
+        seven_day=Window(SEVEN_DAY_LABEL, 0.0, None),
         updated_at=None,
         available=False,
     )
@@ -163,8 +165,8 @@ def read_snapshot(state_file: Path) -> UsageSnapshot:
 
     updated = payload.get("updated_at")
     return UsageSnapshot(
-        five_hour=_parse_window("5-HOUR", limits.get("five_hour")),
-        seven_day=_parse_window("WEEKLY", limits.get("seven_day")),
+        five_hour=_parse_window(FIVE_HOUR_LABEL, limits.get("five_hour")),
+        seven_day=_parse_window(SEVEN_DAY_LABEL, limits.get("seven_day")),
         updated_at=float(updated) if isinstance(updated, (int, float)) else None,
         available=True,
     )

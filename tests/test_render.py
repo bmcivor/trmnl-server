@@ -7,7 +7,12 @@ from PIL import Image
 
 from trmnl_server.config import DISPLAY_HEIGHT, DISPLAY_WIDTH
 from trmnl_server.render import render_snapshot, write_monochrome
-from trmnl_server.usage import UsageSnapshot, Window
+from trmnl_server.usage import (
+    FIVE_HOUR_LABEL,
+    SEVEN_DAY_LABEL,
+    UsageSnapshot,
+    Window,
+)
 
 
 def _snapshot(available: bool = True) -> UsageSnapshot:
@@ -21,8 +26,8 @@ def _snapshot(available: bool = True) -> UsageSnapshot:
     """
     resets = int(time.time()) + 3600
     return UsageSnapshot(
-        five_hour=Window("5-HOUR", 30.0, resets),
-        seven_day=Window("WEEKLY", 27.0, resets + 7200),
+        five_hour=Window(FIVE_HOUR_LABEL, 30.0, resets),
+        seven_day=Window(SEVEN_DAY_LABEL, 27.0, resets + 7200),
         updated_at=time.time(),
         available=available,
     )
